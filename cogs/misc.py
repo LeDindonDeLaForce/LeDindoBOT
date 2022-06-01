@@ -6,6 +6,8 @@ import os
 import wikiquote
 import humanize
 import random
+import pyjokes
+from blagues_api import BlaguesAPI, BlagueType ##GIT https://github.com/Blagues-API/blagues-api-py
 
 from twitchio import User
 from twitchio.ext import commands
@@ -19,8 +21,9 @@ class Misc(commands.Cog):
         self.bot = bot
         self.game_id = {}
         random.seed(datetime.datetime.now())
+        #joketoken=os.environ['JOKE_TOKEN']i
 
-    @commands.command(name="leixban")
+    @commands.command(name="dindoban")
     async def leixban(self, ctx: commands.Context, user):
         await ctx.send(f"Non t'abuses {ctx.author.name}, on va pas ban {user} quand meme BibleThump")
 
@@ -28,7 +31,7 @@ class Misc(commands.Cog):
     async def salut(self, ctx: commands.Context, user: User = None):
         if not user:
             user = ctx.author
-        await ctx.send(f'Mes salutations les plus distinguées @{user.name}! <3')
+        await ctx.send(f'Salut, comment ça va @{user.name} ? <3')
 
     @commands.command(name="bn")
     async def bn(self, ctx: commands.Context, user: User = None):
@@ -50,25 +53,13 @@ class Misc(commands.Cog):
             datetime.timezone.utc) - stream[0].started_at
         await ctx.send(f"Ton streamer préféré est en live depuis {humanize.precisedelta(uptime, minimum_unit='seconds')}")
 
-    @commands.command(name="dblade")
-    async def dblade(self, ctx: commands.Context):
-        await ctx.send(f'Je te dédicace cette dblade {ctx.author.name}!')
-
     @commands.command(name="cursed")
     async def cursed(self, ctx: commands.Context):
         await ctx.send("C'est non")
 
-    @commands.command(name="boubou")
-    async def boubou(self, ctx: commands.Context):
-        await ctx.send(f'Désolé @Lickers__!')
-
-    @commands.command(name="fx")
-    async def fx(self, ctx: commands.Context):
-        await ctx.send('Kel bo fx')
-
     @commands.command(name="lurk")
     async def lurk(self, ctx: commands.Context):
-        await ctx.send(f'{ctx.author.name} devient un lurkeur fou!')
+        await ctx.send(f'{ctx.author.name} passe en lurk! TakeNRG ')
 
     @commands.command(name='shoutout', aliases=['so'])
     async def shoutout(self, ctx: commands.Context, broadcaster: User):
@@ -89,13 +80,9 @@ class Misc(commands.Cog):
     async def porte(self, ctx: commands.Context):
         await ctx.send("Vision d'artiste")
 
-    @commands.command(name="den")
-    async def den(self, ctx: commands.Context):
-        await ctx.send('https://discord.gg/PEfEVWacgP')
-
     @commands.command(name="ref")
     async def ref(self, ctx: commands.Context):
-        await ctx.send('glaref leix34Trigerred')
+        await ctx.send('glaref MrDestructoid')
 
     @commands.command(name="cam")
     async def cam(self, ctx: commands.Context):
@@ -132,6 +119,18 @@ class Misc(commands.Cog):
             self.game_id[ctx.author.channel.name] = ' '.join(id)
             await ctx.send('id set SeemsGood')
 
+    @commands.command(name="joke")
+    async def joke(self, ctx: commands.Context):
+        joke=pyjokes.get_joke(language='en', category= 'all')
+        await ctx.send(joke)
+
+    @commands.command(name="blague")
+    async def blagueapi(self, ctx: commands.Context):
+        blagues=BlaguesAPI("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMjU3NTY1NTg2ODI4MDM0MDQ5IiwibGltaXQiOjEwMCwia2V5Ijoia1A3aUxHMGdZaGUyeU5GMG9NRlo3aHF1ZnpkSXdFendieXdRMlJzMW90WWExNEhMNUgiLCJjcmVhdGVkX2F0IjoiMjAyMi0wNS0yNlQwODozMTowNSswMDowMCIsImlhdCI6MTY1MzU1Mzg2NX0.WwVpmuK8u4TPJGgmg5IN1TLiHrZbRPxTXxH1nlz3ZkA") #token a récupérer sur https://www.blagues-api.fr/
+        rep = await blagues.random(disallow=[BlagueType.DARK,BlagueType.LIMIT,BlagueType.BEAUF])
+        await ctx.send("[" + rep.type.capitalize() + "] : " + rep.joke)
+        await asyncio.sleep(3)
+        await ctx.send(rep.answer + " Kappa")
 
 def prepare(bot: commands.Bot):
     bot.add_cog(Misc(bot))
