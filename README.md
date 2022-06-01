@@ -20,6 +20,7 @@ To generate the channel access token, go to the [token generator](https://twitch
 I recommend making a virtual environment using python 3.9.x or above:
 
 ```
+python -m pip install pipenv
 python -m pipenv --python 3.9
 python -m pipenv install -r requirements.txt
 ```
