@@ -21,7 +21,7 @@ class CustomCommand(commands.Cog):
 
         custom_commands.add_command(command, channel, text)
 
-        await ctx.send(f"Commande {command} ajoutée avec succes SeemsGood")
+        await ctx.send(f"Commande {command} ajoutée avec succès MrDestructoid")
 
     @commands.command(name="cmdedit")
     async def cmdedit(self, ctx: commands.Context, command, *text):
@@ -30,7 +30,7 @@ class CustomCommand(commands.Cog):
 
         custom_commands.edit_command(command, channel, text)
 
-        await ctx.send(f"Commande {command} éditée avec succes SeemsGood")
+        await ctx.send(f"Commande {command} editée avec succès MrDestructoid")
 
     @commands.command(name="cmdremove")
     async def cmdremove(self, ctx: commands.Context, command):
@@ -38,7 +38,7 @@ class CustomCommand(commands.Cog):
 
         custom_commands.remove_command(command, channel)
 
-        await ctx.send(f"Commande {command} retirée avec succes SeemsGood")
+        await ctx.send(f"Commande {command} retirée avec succès MrDestructoid")
 
 
 def prepare(bot: commands.Bot):
