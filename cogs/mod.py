@@ -3,7 +3,6 @@ import os
 
 from twitchio import Channel, Game, User
 from twitchio.ext import commands
-from utils import modify_stream
 
 
 class Mod(commands.Cog):
