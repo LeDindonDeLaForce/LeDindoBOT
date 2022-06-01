@@ -1,23 +1,27 @@
-from db import config
-from twitchio.ext import routines
-import psycopg2
-import os
 import logging
+import os
+import mariadb
+import logging
+from twitchio.ext import routines
+import time
 
 
 commands = {}
-
+params = {
+    'user':'sgbd_user',
+    'password':'sgbd_password'
+    'host':'SGBD host IP or FQDN',
+    'port':3306,
+    'database':'TWITCH_BOT'
+}
 
 def init_commands():
-    """ Connects to the PostgreSQL database server and initializes the custom commands dict """
+    """ Connects to the MariaDB database server and initializes the custom commands dict """
     conn = None
     try:
-        # read connection parameters
-        params = config(filename='database_commands.ini')
-
-        # connect to the PostgreSQL server
+	# connect to the MariaDB server
         logging.info('Initializing commands')
-        conn = psycopg2.connect(**params)
+        conn = mariadb.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -31,10 +35,10 @@ def init_commands():
         for command in commands_raw:
             commands[(command[0], command[1])] = command[2]
 
-        # close the communication with the PostgreSQL
+        # close the communication with the MariaDB
         cur.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, mariadb.Error) as error:
         logging.error(error)
     finally:
         if conn is not None:
@@ -57,12 +61,9 @@ def add_command(command, channel, text):
     # Now adds it to db
     conn = None
     try:
-        # read connection parameters
-        params = config(filename='database_commands.ini')
-
-        # connect to the PostgreSQL server
+        # connect to the MariaDB server
         logging.info('Initializing commands')
-        conn = psycopg2.connect(**params)
+        conn = mariadb.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -79,10 +80,10 @@ def add_command(command, channel, text):
             logging.info(command[1])
             commands[(command[0], command[1])] = command[2]
 
-        # close the communication with the PostgreSQL
+        # close the communication with the MariaDB
         cur.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, mariadb.Error) as error:
         logging.error(error)
     finally:
         if conn is not None:
@@ -96,12 +97,9 @@ def edit_command(command, channel, text):
     # Now updates db
     conn = None
     try:
-        # read connection parameters
-        params = config(filename='database_commands.ini')
-
-        # connect to the PostgreSQL server
+        # connect to the MariaDB server
         logging.info('Initializing commands')
-        conn = psycopg2.connect(**params)
+        conn = mariadb.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -118,10 +116,10 @@ def edit_command(command, channel, text):
             logging.info(command[1])
             commands[(command[0], command[1])] = command[2]
 
-        # close the communication with the PostgreSQL
+        # close the communication with the MariaDB
         cur.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, mariadb.Error) as error:
         logging.error(error)
     finally:
         if conn is not None:
@@ -135,12 +133,9 @@ def remove_command(command, channel):
     # Now updates db
     conn = None
     try:
-        # read connection parameters
-        params = config(filename='database_commands.ini')
-
-        # connect to the PostgreSQL server
+        # connect to the MariaDB server
         logging.info('Initializing commands')
-        conn = psycopg2.connect(**params)
+        conn = mariadb.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -156,16 +151,17 @@ def remove_command(command, channel):
             logging.info(command[1])
             commands[(command[0], command[1])] = command[2]
 
-        # close the communication with the PostgreSQL
+        # close the communication with the MariaDB
         cur.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, mariadb.Error) as error:
         logging.error(error)
     finally:
         if conn is not None:
             conn.close()
             logging.info('Database connection closed.')
 
+### ROUTINES ###
 
 ### ROUTINES ###
 def routine_factory(channel, seconds, minutes, hours, routine_text):
@@ -184,11 +180,11 @@ def add_routine(
     conn = None
     try:
         # read connection parameters
-        params = config(filename='database_commands.ini')
+        #params = config(filename='database_commands.ini')
 
-        # connect to the PostgreSQL server
+        # connect to the MariaDB server
         logging.info('Adding new routine to db')
-        conn = psycopg2.connect(**params)
+        conn = mariadb.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -201,10 +197,10 @@ def add_routine(
 
         conn.commit()
 
-        # close the communication with the PostgreSQL
+        # close the communication with the MariaDB
         cur.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, mariadb.DatabaseError) as error:
         logging.error(error)
     finally:
         if conn is not None:
@@ -213,16 +209,16 @@ def add_routine(
 
 
 def init_routines(bot):
-    """ Connects to the PostgreSQL database server and initializes the custom commands dict """
+    """ Connects to the MariaDB database server and initializes the custom commands dict """
     conn = None
     routines_db = {}
     try:
         # read connection parameters
-        params = config(filename='database_commands.ini')
+        #params = config(filename='database_commands.ini')
 
-        # connect to the PostgreSQL server
+        # connect to the MariaDB server
         logging.info('Initializing routines')
-        conn = psycopg2.connect(**params)
+        conn = mariadb.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -232,6 +228,7 @@ def init_routines(bot):
             f"SELECT * FROM routines"
         )
         routines_raw = cur.fetchall()
+
 
         for routine in routines_raw:
             chan = bot.get_channel(routine[0])
@@ -244,10 +241,10 @@ def init_routines(bot):
             )
             routines_db[routine[0] + '_' + routine[1]].start()
 
-        # close the communication with the PostgreSQL
+        # close the communication with the MariaDB
         cur.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, mariadb.DatabaseError) as error:
         logging.error(error)
     finally:
         if conn is not None:
@@ -261,11 +258,11 @@ def remove_routine(channel, name):
     conn = None
     try:
         # read connection parameters
-        params = config(filename='database_commands.ini')
+        #params = config(filename='database_commands.ini')
 
-        # connect to the PostgreSQL server
+        # connect to the MariaDB server
         logging.info('Removing routine from db')
-        conn = psycopg2.connect(**params)
+        conn = mariadb.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
@@ -278,84 +275,12 @@ def remove_routine(channel, name):
 
         conn.commit()
 
-        # close the communication with the PostgreSQL
+        # close the communication with the MariaDB
         cur.close()
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, mariadb.DatabaseError) as error:
         logging.error(error)
     finally:
         if conn is not None:
             conn.close()
             logging.info('Database connection closed.')
-
-
-### COUNTERS ###
-def set_counter(channel, counter):
-
-    # Now adds it to db
-    conn = None
-    try:
-        # read connection parameters
-        params = config(filename='database_commands.ini')
-
-        # connect to the PostgreSQL server
-        logging.info('Setting counter in db')
-        conn = psycopg2.connect(**params)
-
-        # create a cursor
-        cur = conn.cursor()
-
-        # execute a statement
-        cur.execute(
-            f"""INSERT INTO counters VALUES (%(channel)s, %(counter)s) ON CONFLICT (channel) DO UPDATE SET counter=%(counter)s""",
-            {'counter': counter, 'channel': channel}
-        )
-
-        conn.commit()
-
-        # close the communication with the PostgreSQL
-        cur.close()
-
-    except (Exception, psycopg2.DatabaseError) as error:
-        logging.error(error)
-    finally:
-        if conn is not None:
-            conn.close()
-            logging.info('Database connection closed.')
-
-
-def get_counter(channel):
-
-    # Now adds it to db
-    conn = None
-    try:
-        # read connection parameters
-        params = config(filename='database_commands.ini')
-
-        # connect to the PostgreSQL server
-        logging.info('Getting counter from db')
-        conn = psycopg2.connect(**params)
-
-        # create a cursor
-        cur = conn.cursor()
-
-        # execute a statement
-        cur.execute(
-            f"""SELECT counter FROM counters WHERE channel=%s """,
-            (channel,)
-        )
-        counter = cur.fetchone()
-
-        # close the communication with the PostgreSQL
-        cur.close()
-
-    except (Exception, psycopg2.DatabaseError) as error:
-        logging.error(error)
-    finally:
-        if conn is not None:
-            conn.close()
-            logging.info('Database connection closed.')
-        if counter:
-            return counter[0]
-        else:
-            return 0
