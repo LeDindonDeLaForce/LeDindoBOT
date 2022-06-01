@@ -7,7 +7,6 @@ import re
 import json
 
 from datetime import datetime, timedelta, timezone
-from db import get_token
 
 from twitchio.ext import commands
 
@@ -38,7 +37,7 @@ game_replies = {
     'Monster Hunter Rise':                 ['World > Rise Kappa',
                                             "Comment s'appelle ton palico? <3",
                                             "Comment s'appelle ton doggo? <3",
-                                            '#TeamMarteau'],
+                                            '#TeamInsecto'],
     'Middle-earth: Shadow of War':         ['La fosse SwiftRage',
                                             'Je suis enragé par ton message SwiftRage'],
     'Elden Ring':                          ['Mes yeux de robot détectent des points pas dépensés dans la force! Il est temps de respec SwiftRage',
@@ -52,7 +51,36 @@ game_replies = {
                                              '#TeamPoigne',
                                              'Petite aram? PogChamp',
                                              'Enfin sad la commu :(',
-                                             "T'as bien nourri le poro?"]
+                                             "T'as bien nourri le poro?"],
+    'Mario Kart 8 Deluxe':                  ['PALABLEUE !',
+                                             '#TeamPasMeta',
+                                             'Tu veux jouer lo ?',
+                                             'La RNG !',
+                                             'La banane de Mauz ? 🍌'],
+    'Minecraft':                            ['Faut taper les zomblards ! PunchTrees',
+                                             'DÉ KUBES D:',
+                                             'Ou qu\'elle est la shaft ? PunchTrees',
+                                             '#TeamCarly',
+                                             'La Netherite c\'est la vie PunchTrees'],
+    'Yu-Gi-Oh! Master Duel':                ['Le Dragon Bleu aux Yeux Blancs ?',
+                                             'BAH YES la brick',
+                                             'Sauté de Duelliste à la carte !'],
+    'Super Smash Bros. Ultimate':           ['YAPLUDERESSEPÉ',
+                                             'Toon Link > Sephiroth déso pas déso @Anthagonas',
+                                             'LA DI !',
+                                             'Go spike !'],
+    'Rocket League':                        ['Tape dans l\'fond !',
+                                             'Le streamer sait pas cadrer LUL',
+                                             'Chope le Turbo ! SwiftRage'],
+    'Pokémon Legends: Arceus':              ['Attrape-le par derrière ! KappaPride',
+                                             'Je veux le Smarceus, meilleur tel en fait',
+                                             'Ce jeu est moche ! SwiftRage'],
+     'Mario Kart 8':                         ['PALABLEUE !',
+                                             '#TeamPasMeta',
+                                             'Tu veux jouer lo ?',
+                                             'La RNG !',
+                                             'La banane de Mauz ? 🍌']
+
 }
 
 vip_replies = [
@@ -71,11 +99,7 @@ async def auto_so(bot, message, vip_info):
             message.author.channel.name
         ])
 
-    if (len(stream) == 0 or
-        (vip_name in vip_info and vip_info[vip_name] > stream[0].started_at) or
-        ('vip' not in message.author.badges and
-         'moderator' not in message.author.badges and
-         'artist' not in message.author.badges)):
+    if len(stream) == 0 or (vip_name in vip_info and vip_info[vip_name] > stream[0].started_at) or ('vip' not in message.author.badges and 'moderator' not in message.author.badges):
         return
 
     # Update last automatic shoutout time
@@ -86,26 +110,28 @@ async def auto_so(bot, message, vip_info):
         await message.author.channel.send(
             f'@{vip_name} est un artiste super cool! Passez sur sa chaine www.twitch.tv/{vip_name}'
         )
+
     elif vip_channel_info.game_name:
         await message.author.channel.send(
             f'Allez voir @{vip_name} sur www.twitch.tv/{vip_name} pour du gaming de qualitay sur {vip_channel_info.game_name}'
         )
+
     else:
         await message.author.channel.send(
             f"@{vip_name} ne stream pas mais c'est quelqu'un de super cool SeemsGood"
         )
 
-
 async def random_reply(bot, message):
     channel_info = await bot.fetch_channel(message.channel.name)
-    compiled_msg = re.compile(re.escape('@leixbot'), re.IGNORECASE)
+    compiled_msg = re.compile(re.escape('@ledindobot'), re.IGNORECASE)
     msg_clean = compiled_msg.sub('', message.content)
     reply_pool = [
         "wsh t ki",
         "DONT LOOK BACK",
-        "leix34Trigerred",
+        "AM TRIGGERED",
         f"Ah ouais {msg_clean} ??",
-        'Bip boup, je suis un robot'
+        'Bip boup, je suis un robot MrDestructoid',
+        'Je te surveille toi 👀'
     ]
     if channel_info.game_name in game_replies:
         reply_pool += game_replies[channel_info.game_name]
@@ -119,9 +145,10 @@ async def random_reply(bot, message):
 
 async def random_bot_reply(message):
     reply_pool = [
-        f'LeixBot > {message.author.name} SwiftRage',
-        f"LeixBot s'en charge {message.author.name} MrDestructoid",
-        f'#LeixBotOnly, pas besoin de toi @{message.author.name}'
+        f'LeDindoBOT > {message.author.name} SwiftRage',
+        f"LeDindoBOT s'en charge {message.author.name} MrDestructoid",
+        f'#DindoBOT Pas besoin de toi @{message.author.name}',
+	f"Hey, c'est mon taf ça ! {message.author.name} MrDestructoid"
     ]
     reply = random.choice(reply_pool)
     await message.author.channel.send(f"{reply}")
@@ -132,29 +159,5 @@ def check_for_bot(message):
     return True
 
 
-### API ###
-base_url = "https://api.twitch.tv/helix/channels?broadcaster_id="
 
 
-async def modify_stream(user, game_id: int = None, language: str = None, title: str = None):
-    url = base_url + str(user.id)
-    auth = "Bearer " + await get_token(user.name)
-    id = os.environ['CLIENT_ID']
-
-    headers = {
-        "Client-Id": id,
-        "Authorization": auth
-    }
-
-    data = {
-        k: v
-        for k, v in {"game_id": game_id, "broadcaster_language": language, "title": title}.items()
-        if v is not None
-    }
-    user_encode_data = json.dumps(data).encode('utf-8')
-
-    logging.info('Updating stream')
-
-    async with aiohttp.ClientSession() as session:
-        async with session.patch(url, data=data, headers=headers) as resp:
-            return resp.status == 204
