@@ -2,3 +2,4 @@
 *.log
 Pipfile*
 *.ini
+Procfile
