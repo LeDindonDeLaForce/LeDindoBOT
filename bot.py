@@ -217,10 +217,10 @@ class ledindobot(commands.Bot):
 
 
     ## GENERAL FUNCTIONS ##
-    @commands.command(name="git")
+    @commands.command(name="git", aliases=['source'])
     async def git(self, ctx: commands.Context):
         await ctx.send(
-            f'Le code source de mon papa LeixBot qui a créé le bot que je suis : https://github.com/leochely/LeixBot MrDestructoid'
+            f'Tu veux voir mon code source ? Il est ici : https://github.com/LeDindonDeLaForce/LeDindoBOT MrDestructoid'
         )
 
     @commands.command(name="list")
