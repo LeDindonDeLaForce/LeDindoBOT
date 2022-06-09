@@ -14,7 +14,7 @@ from twitchio.ext import commands, pubsub, routines
 from utils import check_for_bot, random_bot_reply, random_reply, auto_so
 
 
-tw_channels=["ledindondelaforce", "alcino_", "moufl_0n", "mauzemontole", "terya_univers", "testingstream12340"]
+tw_channels=["type", "each", "channel", "which", "uses", "bot"]
 
 class ledindobot(commands.Bot):
 
