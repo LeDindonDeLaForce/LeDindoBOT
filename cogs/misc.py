@@ -87,7 +87,7 @@ class Misc(commands.Cog):
     @commands.command(name="cam")
     async def cam(self, ctx: commands.Context):
         await ctx.send('MET LA CAM')
-
+    """
     @commands.command(name="citation", aliases=['quote'])
     async def citation(self, ctx: commands.Context, *author):
         if not author:
@@ -105,7 +105,7 @@ class Misc(commands.Cog):
 
         if not quote:
             await ctx.send(f"Je n'ai rien trouvé pour cette recherche :(")
-
+    """
     @commands.command()
     async def id(self, ctx: commands.Context):
         if ctx.author.channel.name not in self.game_id:
