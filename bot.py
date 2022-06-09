@@ -13,7 +13,8 @@ from twitchio.ext import commands, pubsub, routines
 
 from utils import check_for_bot, random_bot_reply, random_reply, auto_so
 
-tw_channels=["type", "here", "each", "channel", "which", "uses", "this", "bot"]
+
+tw_channels=["ledindondelaforce", "alcino_", "moufl_0n", "mauzemontole", "terya_univers", "testingstream12340"]
 
 class ledindobot(commands.Bot):
 
@@ -21,8 +22,6 @@ class ledindobot(commands.Bot):
         super().__init__(
             token=os.environ['ACCESS_TOKEN'],
             prefix=os.environ['BOT_PREFIX'],
-#            client_id=os.environ['CLIENT_ID'],
-#            initial_channels=init_channels(),
             initial_channels=tw_channels,
             case_insensitive=True
         )
@@ -77,6 +76,11 @@ class ledindobot(commands.Bot):
         # Retrieving routines from db
         self.routines = custom_commands.init_routines(self)
 
+        # Initializing Users on database and adding new ones to db automatically
+
+        self.usernames = custom_commands.init_users(tw_channels)
+
+
         # We are logged in and ready to chat and use commands...
         logging.info(f'Logged in as | {self.nick}')
 
@@ -105,10 +109,12 @@ class ledindobot(commands.Bot):
 
         if "@ledindobot" in message.content.lower(): #AUTO SO et réponses aléatoires du bot
             await random_reply(self, message)
-        elif message.author.name.lower() in self.bot_to_reply:
-            await random_bot_reply(message)
-        else:
-            await auto_so(self, message, self.vip_so[message.author.channel.name])
+            #UNCOMMENT LINES BELOW TO RE ENABLE RANDOM BOT REPLY
+            
+        #elif message.author.name.lower() in self.bot_to_reply:
+        #    await random_bot_reply(message)
+        #else:
+        #    await auto_so(self, message, self.vip_so[message.author.channel.name])
 
         # Since we have commands and are overriding the default `event_message`
         # We must let the bot know we want to handle and invoke our commands...
@@ -159,14 +165,14 @@ class ledindobot(commands.Bot):
     ## ROUTINES ##
     @routines.routine(minutes=40.0, wait_first=False)
     async def links(self):
-        await self.channel.send("Moi robot MrDestructoid Kappa")
-        await asyncio.sleep(60 * 40)
-        await self.channel.send("Il se passe un truc incroyable ? Le dindon se fait dindonned ? Lâche un clip, fais toi plaiz ! TTours")
-        await asyncio.sleep(60 * 40)
-        await self.channel.send("Si le contenu de la chaîne te plaît, hésite pas à follow pour ne pas manquer la suite ledind1Hey")
-        await asyncio.sleep(60 * 40)
-        await self.channel.send("Mon serveur discord: https://discord.gg/7QyK5U3BKD ImTyping")
-        await asyncio.sleep(60 * 40)
+             await self.channel.send("Moi robot MrDestructoid Kappa")
+             await asyncio.sleep(60 * 40)
+             await self.channel.send("Il se passe un truc incroyable ? Le dindon se fait dindonned ? Lâche un clip, fais toi plaiz ! TTours")
+             await asyncio.sleep(60 * 40)
+             await self.channel.send("Si le contenu de la chaîne te plaît, hésite pas à follow pour ne pas manquer la suite ledind1Hey")
+             await asyncio.sleep(60 * 40)
+             await self.channel.send("Mon serveur discord: https://discord.gg/7QyK5U3BKD ImTyping")
+             await asyncio.sleep(60 * 40)
 
 
 
@@ -199,6 +205,7 @@ class ledindobot(commands.Bot):
             routine_text
         )
         await ctx.send('Routine créée avec succès SeemsGood')
+
 
     @commands.command(name="routine_stop")
     async def routine_stop(self, ctx: commands.Context, name):
@@ -233,6 +240,15 @@ class ledindobot(commands.Bot):
         list = str(list)[1:-1] #remove list square brackets
 
         await ctx.send(f'La liste des commandes de ledindobot (hors custom) : {list}')
+
+    #Listing authors/sources for !citation command, not enabled yet
+    @commands.command(name="author_list")
+    async def author_list(self, ctx: commands.Context):
+        channel = ctx.author.channel.name.lower()
+
+        auteurs = custom_commands.list_author(channel)
+
+        await ctx.send(f'Liste des auteurs/sources autorisés pour la commande !citation : {auteurs}')
 
 
     @commands.command(name="join")
@@ -278,18 +294,7 @@ if __name__ == "__main__":
             logging.StreamHandler()
         ]
     )
-"""
-    client = Client(
-        token=os.environ['CHANNEL_ACCESS_TOKEN'],
-        initial_channels=os.environ['CHANNEL'],
-        client_secret=os.environ['CLIENT_SECRET']
-    )
 
-    client.pubsub = pubsub.PubSubPool(client)
-
-    @client.event()
-    async def event_pubsub_channel_points(event: pubsub.PubSubChannelPointsMessage):
-    await bot.event_pubsub_channel_points(event)
-"""
 bot = ledindobot()
+#    bot.pubsub_client = client
 bot.run()
