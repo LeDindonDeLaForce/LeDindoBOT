@@ -4,7 +4,7 @@ import mariadb
 import logging
 from twitchio.ext import routines
 import time
-
+from sqlcleaner import cleandata
 
 commands = {}
 params = {
@@ -28,7 +28,7 @@ def init_commands():
 
         # execute a statement
         cur.execute(
-            f"SELECT * FROM commands"
+            f"SELECT commands.command, CHANNEL_LIST.channel, commands.text FROM commands INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = commands.channel"
         )
         commands_raw = cur.fetchall()
 
@@ -65,14 +65,14 @@ def add_command(command, channel, text):
         logging.info('Initializing commands')
         conn = mariadb.connect(**params)
 
+
         # create a cursor
         cur = conn.cursor()
 
         # execute a statement
         cur.execute(
-            f"""INSERT INTO commands VALUES (%s, %s, %s)""",
-            (command, channel, text)
-        )
+                f"INSERT INTO commands (command, channel, text) VALUES ('{command}', (SELECT id from CHANNEL_LIST where channel = '{channel}'), '{text}')"
+            )
 
         conn.commit()
 
@@ -106,10 +106,8 @@ def edit_command(command, channel, text):
 
         # execute a statement
         cur.execute(
-            f"""UPDATE commands SET text=%s WHERE command=%s AND channel=%s """,
-            (command, channel, text)
+            f"UPDATE commands SET text = '{text}' WHERE command = '{command}' AND channel = (SELECT id from CHANNEL_LIST where channel = '{channel}')"
         )
-
         conn.commit()
 
         for command in commands_raw:
@@ -142,7 +140,7 @@ def remove_command(command, channel):
 
         # execute a statement
         cur.execute(
-            f"DELETE FROM commands WHERE command='{command}' AND channel='{channel}'"
+            f"DELETE FROM commands WHERE command='{command}' AND channel= (SELECT id from CHANNEL_LIST where channel = '{channel}')"
         )
 
         conn.commit()
@@ -189,10 +187,8 @@ def add_routine(
         # create a cursor
         cur = conn.cursor()
 
-        # execute a statement
         cur.execute(
-            f"""INSERT INTO routines VALUES (%s, %s, %s, %s, %s, %s)""",
-            (channel, name, seconds, minutes, hours, routine_text)
+            f"INSERT INTO routines (channel, name, seconds, minutes, hours, routine_text) VALUES ((SELECT id from CHANNEL_LIST where channel = '{channel}'), '{name}', '{seconds}', '{minutes}', '{hours}', '{routine_text}')"
         )
 
         conn.commit()
@@ -223,9 +219,8 @@ def init_routines(bot):
         # create a cursor
         cur = conn.cursor()
 
-        # execute a statement
         cur.execute(
-            f"SELECT * FROM routines"
+            f"SELECT CHANNEL_LIST.channel, routines.name, routines.seconds, routines.minutes, routines.hours, routines.routine_text FROM routines INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = routines.channel"
         )
         routines_raw = cur.fetchall()
 
@@ -254,7 +249,7 @@ def init_routines(bot):
 
 
 def remove_routine(channel, name):
-    # Now updates db
+    # Now delete from db
     conn = None
     try:
         # read connection parameters
@@ -269,8 +264,7 @@ def remove_routine(channel, name):
 
         # execute a statement
         cur.execute(
-            f"DELETE FROM routines WHERE channel=%s AND name=%s",
-            (channel, name)
+            f"DELETE FROM routines WHERE channel = (SELECT id from CHANNEL_LIST where channel = '{channel}') AND name = '{name}'"
         )
 
         conn.commit()
@@ -284,3 +278,171 @@ def remove_routine(channel, name):
         if conn is not None:
             conn.close()
             logging.info('Database connection closed.')
+
+
+
+def init_users(channels):
+
+    # Now reading from db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info('Init users to db')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        # execute a statement
+        for i in channels:
+            chan = str("'" + i + "'")
+            cur.execute(
+                f"INSERT IGNORE INTO CHANNEL_LIST (channel) VALUES (" + chan + ")",
+            )
+
+        conn.commit()
+
+        # close the communication with the MariaDB
+        cur.close()
+
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+
+###FUNCTIONS BELOW THIS LINE ARE NOT EXPLOITED YET, I WILL FIX THE CITATION COMMAND ON COGS DIR
+def add_author(channel, author):
+
+    # Now connecting it to db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info('Adding new author to db')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"INSERT INTO quoteauthors (channel, allowedauthor) VALUES ((SELECT id from CHANNEL_LIST where channel = '{channel}'), '{author}')"
+        )
+
+        conn.commit()
+
+        # close the communication with the MariaDB
+        cur.close()
+
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+
+
+def del_author(channel, author):
+
+    # Now connecting to db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info('Removing author to db')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"DELETE FROM quoteauthors WHERE channel = (SELECT id from CHANNEL_LIST where channel = '{channel}') AND allowedauthor = '{author}'"
+        )
+
+        conn.commit()
+
+        # close the communication with the MariaDB
+        cur.close()
+
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+
+
+def list_author (channel):
+
+# Now connecting to db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info('Listing author to db')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"SELECT quoteauthors.allowedauthor FROM quoteauthors INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = quoteauthors.channel WHERE CHANNEL_LIST.channel = '{channel}'"
+        )
+
+        auteurs_raw = cur.fetchall()
+
+        # close the communication with the MariaDB
+        cur.close()
+
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+            auteurs = cleandata(auteurs_raw)
+            return auteurs
+
+
+def find_author (channel, author):
+# Now connecting to db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info('Listing author to db')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"SELECT count(quoteauthors.allowedauthor) FROM quoteauthors INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = quoteauthors.channel WHERE CHANNEL_LIST.channel = '{channel}' AND quoteauthors.allowedauthor = '{author}'"
+        )
+
+        token = cur.fetchall()
+        print(token)
+        # close the communication with the MariaDB
+        cur.close()
+
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+            validation = cleandata(token)
+            print(validation[0])
+
