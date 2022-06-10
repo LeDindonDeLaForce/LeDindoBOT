@@ -396,34 +396,12 @@ def list_author (channel):
 
 
 def find_author (channel, author):
-# Now connecting to db
-    conn = None
-    try:
-        # read connection parameters
-        #params = config(filename='database_commands.ini')
+    authorized_authors = auteurs.get(channel)
+    srch_auteur = cleanstring(author)
+    token = srch_auteur in authorized_authors
+    print(token)
+    return token
 
-        # connect to the MariaDB server
-        logging.info('Listing author to db')
-        conn = mariadb.connect(**params)
-
-        # create a cursor
-        cur = conn.cursor()
-
-        cur.execute(
-            f"SELECT count(quoteauthors.allowedauthor) FROM quoteauthors INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = quoteauthors.channel WHERE CHANNEL_LIST.channel = '{channel}' AND quoteauthors.allowedauthor = '{author}'"
-        )
-
-        token = cur.fetchall()
-        # close the communication with the MariaDB
-        cur.close()
-
-    except (Exception, mariadb.DatabaseError) as error:
-        logging.error(error)
-    finally:
-        if conn is not None:
-            conn.close()
-            logging.info('Database connection closed.')
-            validation = cleandata(token)
 
 
 def init_authors(channels):
