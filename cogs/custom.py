@@ -41,25 +41,6 @@ class CustomCommand(commands.Cog):
         await ctx.send(f"Commande {command} retirée avec succès MrDestructoid")
 
 
-    @commands.command(name="author_add")
-    async def author_add(self, ctx: commands.Context, *text):
-        channel = ctx.author.channel.name.lower()
-        text = ' '.join(text)
-
-        custom_commands.add_author(channel, text)
-
-        await ctx.send(f"Auteur/Source ajouté(e) avec succès MrDestructoid")
-
-
-    @commands.command(name="author_del")
-    async def author_del(self, ctx: commands.Context, *text):
-        channel = ctx.author.channel.name.lower()
-        text = ' '.join(text)
-
-        custom_commands.del_author(channel, text)
-
-        await ctx.send(f"Auteur/Source retiré(e) avec succès MrDestructoid")
-
 
 def prepare(bot: commands.Bot):
     bot.add_cog(CustomCommand(bot))
