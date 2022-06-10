@@ -16,6 +16,7 @@ from utils import check_for_bot, random_bot_reply, random_reply, auto_so
 
 tw_channels=["type", "each", "channel", "which", "uses", "bot"]
 
+
 class ledindobot(commands.Bot):
 
     def __init__(self):
@@ -75,6 +76,10 @@ class ledindobot(commands.Bot):
 
         # Retrieving routines from db
         self.routines = custom_commands.init_routines(self)
+        
+        # Retrieving author quotes from db
+        
+        custom_commands.init_authors(tw_channels)
 
         # Initializing Users on database and adding new ones to db automatically
 
@@ -221,7 +226,42 @@ class ledindobot(commands.Bot):
         await ctx.send('Routine stoppée avec succès MrDestructoid')
 
 
+    ## QUOTE AUTHORS ##
 
+    @commands.command(name="author_add")
+    async def author_add(self, ctx: commands.Context, *text):
+        if not ctx.author.is_mod:
+            return
+            
+        channel = ctx.author.channel.name.lower()
+        text = ' '.join(text)
+
+        custom_commands.add_author(channel, text)
+        await ctx.send(f"Auteur/Source ajouté(e) avec succès MrDestructoid")
+
+
+    @commands.command(name="author_del")
+    async def author_del(self, ctx: commands.Context, *text):
+        if not ctx.author.is_mod:
+            return
+            
+        channel = ctx.author.channel.name.lower()
+        text = ' '.join(text)
+
+        custom_commands.del_author(channel, text)
+        await ctx.send(f"Auteur/Source retiré(e) avec succès MrDestructoid")
+
+
+    #Listing authors/sources for !citation command, not enabled yet
+    @commands.command(name="author_list")
+    async def author_list(self, ctx: commands.Context):
+        channel = ctx.author.channel.name.lower()
+
+        auteurs_raw = custom_commands.list_author(channel)
+        auteurs = str(auteurs_raw)[1:-1]
+
+        await ctx.send(f"Liste des auteurs/sources autorisés pour la commande !citation : {auteurs}")
+        
 
     ## GENERAL FUNCTIONS ##
     @commands.command(name="git", aliases=['source'])
@@ -241,14 +281,7 @@ class ledindobot(commands.Bot):
 
         await ctx.send(f'La liste des commandes de ledindobot (hors custom) : {list}')
 
-    #Listing authors/sources for !citation command, not enabled yet
-    @commands.command(name="author_list")
-    async def author_list(self, ctx: commands.Context):
-        channel = ctx.author.channel.name.lower()
 
-        auteurs = custom_commands.list_author(channel)
-
-        await ctx.send(f'Liste des auteurs/sources autorisés pour la commande !citation : {auteurs}')
 
 
     @commands.command(name="join")
