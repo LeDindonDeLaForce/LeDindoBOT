@@ -6,6 +6,7 @@ from twitchio.ext import routines
 import time
 from sqlcleaner import cleandata
 
+auteurs = {}
 commands = {}
 params = {
     'user':'sgbd_user',
@@ -159,7 +160,6 @@ def remove_command(command, channel):
             conn.close()
             logging.info('Database connection closed.')
 
-### ROUTINES ###
 
 ### ROUTINES ###
 def routine_factory(channel, seconds, minutes, hours, routine_text):
@@ -339,6 +339,11 @@ def add_author(channel, author):
 
         # close the communication with the MariaDB
         cur.close()
+        auteurs_tmp = auteurs[f'{channel}']
+        del auteurs[f'{channel}']
+        auteurs_tmp.append(author)
+        auteurs[f'{channel}'] = auteurs_tmp
+        
 
     except (Exception, mariadb.DatabaseError) as error:
         logging.error(error)
@@ -368,6 +373,11 @@ def del_author(channel, author):
         )
 
         conn.commit()
+        
+        auteurs_tmp = auteurs[f'{channel}']
+        del auteurs[f'{channel}']
+        auteurs_tmp.remove(author)
+        auteurs[f'{channel}'] = auteurs_tmp
 
         # close the communication with the MariaDB
         cur.close()
@@ -381,37 +391,8 @@ def del_author(channel, author):
 
 
 def list_author (channel):
-
-# Now connecting to db
-    conn = None
-    try:
-        # read connection parameters
-        #params = config(filename='database_commands.ini')
-
-        # connect to the MariaDB server
-        logging.info('Listing author to db')
-        conn = mariadb.connect(**params)
-
-        # create a cursor
-        cur = conn.cursor()
-
-        cur.execute(
-            f"SELECT quoteauthors.allowedauthor FROM quoteauthors INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = quoteauthors.channel WHERE CHANNEL_LIST.channel = '{channel}'"
-        )
-
-        auteurs_raw = cur.fetchall()
-
-        # close the communication with the MariaDB
-        cur.close()
-
-    except (Exception, mariadb.DatabaseError) as error:
-        logging.error(error)
-    finally:
-        if conn is not None:
-            conn.close()
-            logging.info('Database connection closed.')
-            auteurs = cleandata(auteurs_raw)
-            return auteurs
+    authorized_authors = auteurs.get(channel)
+    return authorized_authors
 
 
 def find_author (channel, author):
@@ -433,7 +414,6 @@ def find_author (channel, author):
         )
 
         token = cur.fetchall()
-        print(token)
         # close the communication with the MariaDB
         cur.close()
 
@@ -444,5 +424,42 @@ def find_author (channel, author):
             conn.close()
             logging.info('Database connection closed.')
             validation = cleandata(token)
-            print(validation[0])
+
+
+def init_authors(channels):
+
+    """ Connects to the MariaDB database server and initializes the custom commands dict """
+    conn = None
+    try:
+	# connect to the MariaDB server
+        logging.info('Initializing commands')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        # execute multiple statements
+        
+        for twitch_chan in channels:
+            # Reinit 'auteur' var
+            auteur=[]
+            cur.execute(
+                f"SELECT quoteauthors.allowedauthor FROM quoteauthors INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = quoteauthors.channel where CHANNEL_LIST.channel = '{twitch_chan}'"
+            )
+            auteurs_raw = cur.fetchall()
+            auteurs_clean = cleandata(auteurs_raw)
+            for auteur_tmp in auteurs_clean:
+                auteur.append(auteur_tmp)
+            
+            auteurs[f'{twitch_chan}'] = auteur
+
+        # close the communication with the MariaDB
+        cur.close()
+
+    except (Exception, mariadb.Error) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
 
