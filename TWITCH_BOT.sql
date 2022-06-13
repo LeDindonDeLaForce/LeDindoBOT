@@ -1,6 +1,6 @@
 -- MySQL dump 10.16  Distrib 10.1.48-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: TWITCH_BOT_2
+-- Host: localhost    Database: TWITCH_BOT
 -- ------------------------------------------------------
 -- Server version	10.1.48-MariaDB-0+deb9u2
 
@@ -23,11 +23,12 @@ DROP TABLE IF EXISTS `CHANNEL_LIST`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `CHANNEL_LIST` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `id` int(255) NOT NULL AUTO_INCREMENT,
   `channel` varchar(25) NOT NULL,
+  `queue` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `channel` (`channel`)
-) ENGINE=InnoDB AUTO_INCREMENT=253 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=295 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -67,7 +68,6 @@ CREATE TABLE `quoteauthors` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
-
 --
 -- Table structure for table `routines`
 --
@@ -87,14 +87,28 @@ CREATE TABLE `routines` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+
 --
--- Dumping data for table `routines`
+-- Table structure for table `stream_queue`
 --
 
-LOCK TABLES `routines` WRITE;
-/*!40000 ALTER TABLE `routines` DISABLE KEYS */;
-/*!40000 ALTER TABLE `routines` ENABLE KEYS */;
-UNLOCK TABLES;
+DROP TABLE IF EXISTS `stream_queue`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stream_queue` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `channel` int(10) NOT NULL,
+  `user` varchar(25) NOT NULL,
+  PRIMARY KEY (`channel`,`user`),
+  UNIQUE KEY `id_2` (`id`),
+  KEY `channel` (`channel`),
+  KEY `id` (`id`),
+  CONSTRAINT `stream_queue_ibfk_1` FOREIGN KEY (`channel`) REFERENCES `CHANNEL_LIST` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -105,4 +119,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-06-09 17:51:10
+-- Dump completed on 2022-06-13 11:38:29
