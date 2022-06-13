@@ -8,6 +8,9 @@ from sqlcleaner import cleandata
 
 auteurs = {}
 commands = {}
+queues = {}
+active_queues = {}
+
 params = {
     'user':'sgbd_user',
     'password':'sgbd_password'
@@ -314,6 +317,224 @@ def init_users(channels):
         if conn is not None:
             conn.close()
             logging.info('Database connection closed.')
+		
+		
+#### STREAM QUEUES         
+            
+def join_queue(channel, user):
+
+    # Now connecting it to db
+    conn = None
+    try:
+        #read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info(f'Joining {user} to queue')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"INSERT INTO stream_queue (channel, user) VALUES ((SELECT id from CHANNEL_LIST where channel = '{channel}'), '{user}')"
+        )
+
+        conn.commit()
+
+        # close the communication with the MariaDB
+        cur.close()
+        queues[f'{channel}'].append(user)
+        
+        result = True        
+        
+
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+        result = False
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+            print(result)
+            return result
+
+
+def leave_queue(channel, user):
+
+    # Now connecting to db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info(f'Leaving {user} from queue')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"DELETE FROM stream_queue WHERE channel = (SELECT id from CHANNEL_LIST where channel = '{channel}') AND user = '{user}'"
+        )
+
+        conn.commit()
+        
+        queues[f'{channel}'].remove(user)
+        result = True
+        
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+        result = False
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+            return result
+
+def clear_queue(channel):
+
+    # Now connecting to db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info(f'Clearing {channel} queue')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"DELETE FROM stream_queue WHERE channel = (SELECT id from CHANNEL_LIST where channel = '{channel}')"
+        )
+
+        conn.commit()
+
+        queues[f'{channel}'] = []
+
+
+        # close the communication with the MariaDB
+        cur.close()
+        result = True
+
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+        result = False
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+            return result
+
+
+            
+def queue_on_off(channel, boolean): 
+
+    # Now connecting to db
+    conn = None
+    try:
+        # read connection parameters
+        #params = config(filename='database_commands.ini')
+
+        # connect to the MariaDB server
+        logging.info('Queue on/off')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        cur.execute(
+            f"UPDATE CHANNEL_LIST SET queue = '{boolean}' WHERE channel = '{channel}'"
+        )
+
+        conn.commit()
+        active_queues[f'{channel}'] = boolean
+
+
+        # close the communication with the MariaDB
+        cur.close()
+        result = True
+    except (Exception, mariadb.DatabaseError) as error:
+        logging.error(error)
+        result = False
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+            return result
+
+def queue_active_check(channel): #check if a queue channel is active or not
+
+    if active_queues[f'{channel}'] == 1:
+        token = True
+    else:
+        token = False
+        return token
+
+def queue_next(channel):  #Calls the next user in queue
+    
+    queues_tmp = queues[f'{channel}']
+    if queues_tmp[0] == '':
+        return False
+    user = queues_tmp[0]
+    queues_tmp.append(user)
+    del queues_tmp[0]
+    queues[f'{channel}'] = queues_tmp
+    return user
+    
+
+            
+def init_queue(channels):
+
+    """ Connects to the MariaDB database server and initializes the custom commands dict """
+    conn = None
+    try:
+	# connect to the MariaDB server
+        logging.info('Initializing queues')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        # execute multiple statements
+        
+        for twitch_chan in channels:
+            # Reinit 'auteur' var
+            queue=[]
+            cur.execute(
+                f"SELECT stream_queue.user FROM stream_queue INNER JOIN CHANNEL_LIST ON CHANNEL_LIST.id = stream_queue.channel where CHANNEL_LIST.channel = '{twitch_chan}' ORDER BY stream_queue.id ASC"
+            )
+            queues_raw = cur.fetchall()
+            queues_clean = cleansql(queues_raw)
+            for queue_tmp in queues_clean:
+                queue.append(queue_tmp)
+            
+            queues[f'{twitch_chan}'] = queue
+
+
+
+        cur.execute(
+            f"SELECT channel, queue FROM CHANNEL_LIST"
+        )
+        queues_raw = cur.fetchall()
+        for queue_tmp in queues_raw:
+            active_queues[(queue_tmp[0])] = queue_tmp[1]
+        
+        # close the communication with the MariaDB
+        cur.close()
+    except (Exception, mariadb.Error) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+
+		
+
 
 ###FUNCTIONS BELOW THIS LINE ARE NOT EXPLOITED YET, I WILL FIX THE CITATION COMMAND ON COGS DIR
 def add_author(channel, author):
