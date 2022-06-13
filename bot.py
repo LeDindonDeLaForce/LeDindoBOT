@@ -78,11 +78,13 @@ class ledindobot(commands.Bot):
         self.routines = custom_commands.init_routines(self)
         
         # Retrieving author quotes from db
-        
         custom_commands.init_authors(tw_channels)
+        
+        # Retrieving stream queues in case of bot crashed or stopped
+        custom_commands.init_queue(tw_channels)
+
 
         # Initializing Users on database and adding new ones to db automatically
-
         self.usernames = custom_commands.init_users(tw_channels)
 
 
@@ -225,6 +227,99 @@ class ledindobot(commands.Bot):
         custom_commands.remove_routine(ctx.author.channel.name, name)
         await ctx.send('Routine stoppée avec succès MrDestructoid')
 
+    ## STREAM QUEUES ##
+     
+    @commands.command(name="startqueue")
+    async def starting_queue(self, ctx: commands.Context):
+        if not ctx.author.is_mod:
+            return
+            
+        channel = ctx.author.channel.name.lower()
+        onoff = 1
+        starting_queue = custom_commands.queue_on_off(channel, onoff)
+        
+        if starting_queue is not False:
+            await ctx.send(f"La file est désormais ouverte, tapez !join pour y entrer MrDestructoid")
+            
+            
+    @commands.command(name="stopqueue")
+    async def stopping_queue(self, ctx: commands.Context):
+        if not ctx.author.is_mod:
+            return
+            
+        channel = ctx.author.channel.name.lower()
+        onoff = 0
+        starting_queue = custom_commands.queue_on_off(channel, onoff)
+        
+        if starting_queue is not False:
+            await ctx.send(f"La file est désormais fermée MrDestructoid")
+        
+        
+        
+    @commands.command(name="join")
+    async def player_join_queue(self, ctx: commands.Context):
+    
+        active_queue = custom_commands.queue_active_check(ctx.author.channel.name)
+        print(active_queue)
+        if active_queue == False: #Ends the function is queue is not active
+           return
+
+
+        queue_player_join = custom_commands.join_queue(ctx.author.channel.name, ctx.author.name)
+        
+        if queue_player_join is True:
+            await ctx.send(f"@{ctx.author.name} est entré dans la file MrDestructoid")
+
+    @commands.command(name="leave") #leaving the queue
+    async def player_leave_queue(self, ctx: commands.Context):
+
+
+        queue_player_leave = custom_commands.leave_queue(ctx.author.channel.name, ctx.author.name)
+        
+        if queue_player_leave is True:
+            await ctx.send(f"@{ctx.author.name} a quitté la file MrDestructoid")
+
+
+
+    @commands.command(name="clearqueue") #command to clear the stream queue
+    async def player_clear_queue(self, ctx: commands.Context):
+        if not ctx.author.is_mod:
+            return
+
+        queue_player_clear = custom_commands.clear_queue(ctx.author.channel.name)
+        
+        if queue_player_clear is True:
+            await ctx.send(f"La file a été évacuée, tout le monde dehors les margoulins MrDestructoid")
+            
+
+
+    @commands.command(name="kick")
+    async def player_kick_queue(self, ctx: commands.Context, target):
+        if not ctx.author.is_mod:
+            return
+
+        user = str(target.replace('@',''))
+        queue_player_leave = custom_commands.leave_queue(ctx.author.channel.name, user)
+        
+        if queue_player_leave is True:
+            await ctx.send(f"@{user} a été éjecté de la file. {user} pas sage MrDestructoid")
+
+
+    @commands.command(name="next")
+    async def player_next_queue(self, ctx: commands.Context):
+        if not ctx.author.is_mod:
+            return
+            
+        channel = ctx.author.channel.name.lower()
+        
+
+        queue_player = custom_commands.queue_next(channel)
+        
+        if queue_player is not False:
+            await ctx.send(f"C'est à ton tour @{queue_player} MrDestructoid")
+
+            
+        
 
     ## QUOTE AUTHORS ##
 
