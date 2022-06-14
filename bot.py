@@ -1,4 +1,4 @@
-# bot.py
+## bot.py
 import asyncio
 import logging
 import os  # for importing env vars for the bot to use
