@@ -294,15 +294,15 @@ class ledindobot(commands.Bot):
 
 
     @commands.command(name="kick")
-    async def player_kick_queue(self, ctx: commands.Context, target):
+    async def player_kick_queue(self, ctx: commands.Context, user: User = None):
         if not ctx.author.is_mod:
             return
 
-        user = str(target.replace('@',''))
-        queue_player_leave = custom_commands.leave_queue(ctx.author.channel.name, user)
+        #user = str(user.replace('@',''))
+        queue_player_leave = custom_commands.leave_queue(ctx.author.channel.name, user.name)
         
         if queue_player_leave is True:
-            await ctx.send(f"@{user} a été éjecté de la file. {user} pas sage MrDestructoid")
+            await ctx.send(f"@{user.name} a été éjecté de la file. {user.name} pas sage MrDestructoid")
 
 
     @commands.command(name="next")
