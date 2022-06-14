@@ -70,6 +70,9 @@ class ledindobot(commands.Bot):
         # Starting timers
         logging.info("Starting routines...")
         self.links.start()
+        
+        # Initializing Users on database and adding new ones to db automatically
+        self.usernames = custom_commands.init_users(tw_channels)
 
         # Retrieving custom commands from db
         custom_commands.init_commands()
@@ -83,9 +86,6 @@ class ledindobot(commands.Bot):
         # Retrieving stream queues in case of bot crashed or stopped
         custom_commands.init_queue(tw_channels)
 
-
-        # Initializing Users on database and adding new ones to db automatically
-        self.usernames = custom_commands.init_users(tw_channels)
 
 
         # We are logged in and ready to chat and use commands...
