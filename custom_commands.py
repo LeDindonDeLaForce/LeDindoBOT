@@ -533,6 +533,22 @@ def init_queue(channels):
             conn.close()
             logging.info('Database connection closed.')
 
+
+def list_queue(channel): #displays players in the queue
+    queue_tmp = queues[f'{channel}'] #if queue is empty
+    if len(queue_tmp) == 0:
+        return False
+        
+    waitfile = str('') #initializing string var
+    for i in queue_tmp:
+        if i == queue_tmp[0]:
+            waitfile += '[next] ' #define who is the next player on the queue
+        
+        waitfile += str(f"{i}, ") #listing all players
+    waitfile = str(waitfile)[:-2] # remove coma
+    return waitfile
+
+
 		
 
 
