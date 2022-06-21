@@ -304,7 +304,23 @@ class ledindobot(commands.Bot):
         if queue_player_leave is True:
             await ctx.send(f"@{user.name} a été éjecté de la file. {user.name} pas sage MrDestructoid")
 
+            
+            
+    @commands.command(name="queue")
+    async def player_list_queue(self, ctx: commands.Context):
+            
+        channel = ctx.author.channel.name.lower()
+        
 
+        liste = custom_commands.list_queue(channel)
+        
+        if liste is not False:
+            await ctx.send(f"{liste}")
+        else:
+            await ctx.send("La file d'attente est vide MrDestructoid")
+            
+            
+            
     @commands.command(name="next")
     async def player_next_queue(self, ctx: commands.Context):
         if not ctx.author.is_mod:
@@ -317,9 +333,10 @@ class ledindobot(commands.Bot):
         
         if queue_player is not False:
             await ctx.send(f"C'est à ton tour @{queue_player} MrDestructoid")
+     
 
             
-        
+
 
     ## QUOTE AUTHORS ##
 
