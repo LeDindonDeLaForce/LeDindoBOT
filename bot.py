@@ -280,6 +280,28 @@ class ledindobot(commands.Bot):
             await ctx.send(f"@{ctx.author.name} a quitté la file MrDestructoid")
 
 
+    @commands.command(name="end") #leaving the queue
+    async def player_end_queue(self, ctx: commands.Context):
+
+
+        queue_player_end = custom_commands.queue_end(ctx.author.channel.name, ctx.author.name)
+        
+        if queue_player_end is True:
+            await ctx.send(f"@{ctx.author.name} passe à la fin de la file MrDestructoid")
+
+
+
+    @commands.command(name="tail")
+    async def player_tail_queue(self, ctx: commands.Context, user: User = None):
+        if not ctx.author.is_mod:
+            return
+
+        #user = str(user.replace('@',''))
+        queue_player_tail = custom_commands.queue_end(ctx.author.channel.name, user.name)
+        
+        if queue_player_tail is True:
+            await ctx.send(f"@{user.name} a été envoyé à la fin de de la file MrDestructoid")
+            
 
     @commands.command(name="clearqueue") #command to clear the stream queue
     async def player_clear_queue(self, ctx: commands.Context):
