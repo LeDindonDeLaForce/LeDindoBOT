@@ -549,7 +549,19 @@ def list_queue(channel): #displays players in the queue
     return waitfile
 
 
-		
+def queue_end(channel,user):  #Put user at the end
+    
+    queues_tmp = queues[f'{channel}']
+
+    if user in queues_tmp:
+        queues_tmp.remove(user)
+        queues_tmp.append(user)
+    else:
+        return False
+
+    queues[f'{channel}'] = queues_tmp
+    return True
+
 
 
 ###FUNCTIONS BELOW THIS LINE ARE NOT EXPLOITED YET, I WILL FIX THE CITATION COMMAND ON COGS DIR
