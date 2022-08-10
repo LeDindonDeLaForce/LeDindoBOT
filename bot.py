@@ -328,7 +328,7 @@ class ledindobot(commands.Bot):
 
             
             
-    @commands.command(name="queue")
+    @commands.command(name="queue", aliases=['list'])
     async def player_list_queue(self, ctx: commands.Context):
             
         channel = ctx.author.channel.name.lower()
@@ -404,7 +404,7 @@ class ledindobot(commands.Bot):
             f'Tu veux voir mon code source ? Il est ici : https://github.com/LeDindonDeLaForce/LeDindoBOT MrDestructoid'
         )
 
-    @commands.command(name="list")
+    @commands.command(name="commands", aliases=['commandlist'])
     async def list(self, ctx: commands.Context):
         list = []
         for command in self.commands:
