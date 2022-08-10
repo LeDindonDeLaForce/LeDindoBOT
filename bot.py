@@ -424,6 +424,49 @@ class ledindobot(commands.Bot):
         result = random.choice(piece)
         await ctx.send(f"@{ctx.author.name} lance une pièce... c'est {result} MrDestructoid")
         
+        
+ #### ROULETTES
+
+    @commands.command(name="roulette", aliases=['rouletterusse'])
+    async def rouletterusse(self, ctx: commands.Context):
+        token = custom_commands.roulettes_active_check(ctx.author.channel.name)
+        if token == False:
+            await ctx.send(f"@{ctx.author.name}, la roulette russe n'est pas active sur cette chaîne, demande à un modo de l'activer avec !startroulette MrDestructoid")
+            return
+        
+        await ctx.send(f"@{ctx.author.name} prend son six coups ...")
+        await asyncio.sleep(2)
+        charges = ['1', '2', '3', '4', '5', '6']
+        result = random.choice(charges)
+            
+
+        if result == '3':
+            
+            if ctx.author.is_mod:
+                await ctx.send(f"PAN !! ... mais @{ctx.author.name} est modo, c'est pas du jeu SwiftRage")
+                return
+            else:
+                await ctx.send(f"PAN !!")
+                await ctx.send(f"/timeout {ctx.author.name} 60 Tu as perdu à la roulette russe, à dans 1 minute ^^ ")
+        else:
+            await ctx.send(f"... mais rien ne se passe ...")
+            
+
+
+
+    @commands.command(name="startroulette")
+    async def roulettestart(self, ctx: commands.Context):
+
+        custom_commands.start_roulette(ctx.author.channel.name)
+        await ctx.send(f"Roulette russe activée sur la chaîne {ctx.author.channel.name} MrDestructoid")
+
+    @commands.command(name="stoproulette")
+    async def roulettestop(self, ctx: commands.Context):
+
+        custom_commands.stop_roulette(ctx.author.channel.name)
+        await ctx.send(f"Roulette russe désactivée sur la chaîne {ctx.author.channel.name} MrDestructoid")
+    
+        
 
 
 if __name__ == "__main__":
