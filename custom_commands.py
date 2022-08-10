@@ -346,7 +346,6 @@ def init_roulettes(channels):
                 roulette.append(roulette_tmp)
             
             roulettes[f'{twitch_chan}'] = roulette
-            print (roulettes[f'{twitch_chan}'])
 
 
         
