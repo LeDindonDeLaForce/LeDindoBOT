@@ -317,6 +317,124 @@ def init_users(channels):
         if conn is not None:
             conn.close()
             logging.info('Database connection closed.')
+
+		
+### ROULETTES
+
+def init_roulettes(channels):
+    """ Connects to the MariaDB database server and initializes the custom commands dict """
+    conn = None
+    try:
+	# connect to the MariaDB server
+        logging.info('Initializing queues')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        # execute multiple statements
+        
+        for twitch_chan in channels:
+            # Reinit 'auteur' var
+            roulette=[]
+            cur.execute(
+                f"SELECT roulette FROM CHANNEL_LIST where CHANNEL_LIST.channel = '{twitch_chan}'"
+            )
+            roulette_raw = cur.fetchall()
+            roulette_clean = cleansql(roulette_raw)
+            for roulette_tmp in roulette_clean:
+                roulette.append(roulette_tmp)
+            
+            roulettes[f'{twitch_chan}'] = roulette
+            print (roulettes[f'{twitch_chan}'])
+
+
+        
+        # close the communication with the MariaDB
+        cur.close()
+    except (Exception, mariadb.Error) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+
+
+
+def roulettes_active_check(channel): #check if a roulettes channel is active or not
+    
+    if "started" in roulettes[f'{channel}']:
+        token = True
+    else:
+        token = False
+        return token
+
+
+def start_roulette(channel):
+    """ Connects to the MariaDB database server and initializes the custom commands dict """
+    conn = None
+    try:
+	# connect to the MariaDB server
+        logging.info('Initializing queues')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+
+  
+        cur.execute(
+                f"UPDATE CHANNEL_LIST SET roulette = 'started' where channel = '{channel}'"
+        )
+
+            
+        roulettes[f'{channel}'] = 'started'
+
+        
+        # close the communication with the MariaDB
+        conn.commit()
+        cur.close()
+    except (Exception, mariadb.Error) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
+  
+
+def stop_roulette(channel):    
+    """ Connects to the MariaDB database server and initializes the custom commands dict """
+    conn = None
+    try:
+	# connect to the MariaDB server
+        logging.info('Initializing queues')
+        conn = mariadb.connect(**params)
+
+        # create a cursor
+        cur = conn.cursor()
+
+        # execute multiple statements
+        
+
+
+  
+        cur.execute(
+                f"UPDATE CHANNEL_LIST SET roulette = 'stopped' where channel = '{channel}'"
+        )
+
+            
+        roulettes[f'{channel}'] = 'stopped'
+
+        
+        # close the communication with the MariaDB
+        conn.commit()
+        cur.close()
+    except (Exception, mariadb.Error) as error:
+        logging.error(error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logging.info('Database connection closed.')
 		
 		
 #### STREAM QUEUES         
