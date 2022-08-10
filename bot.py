@@ -456,12 +456,16 @@ class ledindobot(commands.Bot):
 
     @commands.command(name="startroulette")
     async def roulettestart(self, ctx: commands.Context):
+        if not ctx.author.is_mod:
+            return
 
         custom_commands.start_roulette(ctx.author.channel.name)
         await ctx.send(f"Roulette russe activée sur la chaîne {ctx.author.channel.name} MrDestructoid")
 
     @commands.command(name="stoproulette")
     async def roulettestop(self, ctx: commands.Context):
+        if not ctx.author.is_mod:
+            return
 
         custom_commands.stop_roulette(ctx.author.channel.name)
         await ctx.send(f"Roulette russe désactivée sur la chaîne {ctx.author.channel.name} MrDestructoid")
