@@ -26,6 +26,7 @@ CREATE TABLE `CHANNEL_LIST` (
   `id` int(255) NOT NULL AUTO_INCREMENT,
   `channel` varchar(25) NOT NULL,
   `queue` tinyint(1) NOT NULL DEFAULT '0',
+  `roulette` varchar(7) NOT NULL DEFAULT 'stopped',
   PRIMARY KEY (`id`),
   UNIQUE KEY `channel` (`channel`)
 ) ENGINE=InnoDB AUTO_INCREMENT=295 DEFAULT CHARSET=utf8mb4;
