@@ -9,6 +9,7 @@ from sqlcleaner import cleandata
 auteurs = {}
 commands = {}
 queues = {}
+roulettes = {}
 active_queues = {}
 
 params = {
@@ -326,7 +327,7 @@ def init_roulettes(channels):
     conn = None
     try:
 	# connect to the MariaDB server
-        logging.info('Initializing queues')
+        logging.info('Initializing roulettes')
         conn = mariadb.connect(**params)
 
         # create a cursor
