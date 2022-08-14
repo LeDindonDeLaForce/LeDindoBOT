@@ -24,23 +24,23 @@ Debian/Ubuntu :
 apt install -y python3 python3-pip
 ```
 
-RedHat/Centos/Rocky:
+RedHat/CentOS/Rocky:
 ```
 yum install -y python3 python3-pip
 ```
 
-Alpine
+Alpine :
 ```
 apk add python3 py3-pip
 ```
 
-SUSE/openSUSE
+SUSE/openSUSE :
 ```
 zypper install python3 python3-pip
 ```
 
 
-
+Then :
 ```
 python3 -m pip install pipenv
 python3 -m pipenv --python 3.9
