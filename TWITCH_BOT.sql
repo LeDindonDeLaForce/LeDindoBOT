@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: TWITCH_BOT
 -- ------------------------------------------------------
--- Server version	10.1.48-MariaDB-0+deb9u2
+-- Server version       10.1.48-MariaDB-0+deb9u2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -29,10 +29,8 @@ CREATE TABLE `CHANNEL_LIST` (
   `roulette` varchar(7) NOT NULL DEFAULT 'stopped',
   PRIMARY KEY (`id`),
   UNIQUE KEY `channel` (`channel`)
-) ENGINE=InnoDB AUTO_INCREMENT=295 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=889 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
-
 
 --
 -- Table structure for table `commands`
@@ -67,6 +65,7 @@ CREATE TABLE `quoteauthors` (
   CONSTRAINT `quoteauthors_ibfk_1` FOREIGN KEY (`channel`) REFERENCES `CHANNEL_LIST` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
 
 
 --
@@ -106,11 +105,10 @@ CREATE TABLE `stream_queue` (
   KEY `channel` (`channel`),
   KEY `id` (`id`),
   CONSTRAINT `stream_queue_ibfk_1` FOREIGN KEY (`channel`) REFERENCES `CHANNEL_LIST` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -120,4 +118,4 @@ CREATE TABLE `stream_queue` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-06-13 11:38:29
+-- Dump completed on 2022-08-14  8:16:09
