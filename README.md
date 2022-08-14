@@ -19,10 +19,32 @@ To generate the channel access token, go to the [token generator](https://twitch
 
 I recommend making a virtual environment using python 3.9.x or above:
 
+Debian/Ubuntu : 
 ```
-python -m pip install pipenv
-python -m pipenv --python 3.9
-python -m pipenv install -r requirements.txt
+apt install -y python3 python3-pip
+```
+
+RedHat/Centos/Rocky:
+```
+yum install -y python3 python3-pip
+```
+
+Alpine
+```
+apk add python3 py3-pip
+```
+
+SUSE/openSUSE
+```
+zypper install python3 python3-pip
+```
+
+
+
+```
+python3 -m pip install pipenv
+python3 -m pipenv --python 3.9
+python3 -m pipenv install -r requirements.txt
 ```
 
 To use custom commands and custom routines, you have to use a SGBD; Here I use MariaDB, but you can also use PostgreSQL or MySQL for example; so you will have to edit the script custom_commands.py in consequence.
@@ -32,7 +54,7 @@ The file TWITCH_BOT.sql is avaliable to build easily the database from the dump.
 ## Usage
 
 ```
-python -m pipenv run python bot.py
+python3 -m pipenv run python bot.py
 ```
 
 A Procfile is included for heroku deployment.
