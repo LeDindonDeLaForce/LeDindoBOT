@@ -270,7 +270,7 @@ class ledindobot(commands.Bot):
         if queue_player_join is True:
             await ctx.send(f"@{ctx.author.name} est entré dans la file MrDestructoid")
 
-    @commands.command(name="leave") #leaving the queue
+    @commands.command(name="leave", aliases=['quit','exit']) #leaving the queue
     async def player_leave_queue(self, ctx: commands.Context):
 
 
@@ -328,7 +328,7 @@ class ledindobot(commands.Bot):
 
             
             
-    @commands.command(name="queue", aliases=['list'])
+    @commands.command(name="queue", aliases=['list','liste'])
     async def player_list_queue(self, ctx: commands.Context):
             
         channel = ctx.author.channel.name.lower()
