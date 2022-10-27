@@ -81,9 +81,9 @@ def add_command(command, channel, text):
 
         conn.commit()
 
-        for command in commands_raw:
-            logging.info(command[1])
-            commands[(command[0], command[1])] = command[2]
+        
+        logging.info(command[1])
+        commands[(command[0], command[1])] = command[2]
 
         # close the communication with the MariaDB
         cur.close()
@@ -115,9 +115,8 @@ def edit_command(command, channel, text):
         )
         conn.commit()
 
-        for command in commands_raw:
-            logging.info(command[1])
-            commands[(command[0], command[1])] = command[2]
+        logging.info(command[1])
+        commands[(command[0], command[1])] = command[2]
 
         # close the communication with the MariaDB
         cur.close()
@@ -150,9 +149,8 @@ def remove_command(command, channel):
 
         conn.commit()
 
-        for command in commands_raw:
-            logging.info(command[1])
-            commands[(command[0], command[1])] = command[2]
+        logging.info(command[1])
+        commands[(command[0], command[1])] = command[2]
 
         # close the communication with the MariaDB
         cur.close()
